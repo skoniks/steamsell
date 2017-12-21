@@ -1,0 +1,34 @@
+{ 
+	"manifest_version": 2,
+  	"name": "SteamSELL - Fast way to sell items on Steam",
+    "short_name": "SteamSELL",
+  	"description": "Расширение для быстрой продажи ваших предметов STEAM",
+  	"version": "1.0.0",
+    "author" : "SKONIKS",
+	"content_scripts": [{
+        "matches": ["*://steamcommunity.com/id/*/inventory", "*://steamcommunity.com/id/*/inventory/*"],
+	  	"js": ["js/jquery-1.10.2.min.js", "js/async.js", "js/main.js", "js/popup.js"],
+        "run_at": "document_end"
+	}],
+    "externally_connectable": {
+        "matches": ["*://steamcommunity.com/*", "*://localhost/*", "*://steamp.ru/*"]
+    },
+	"icons": {
+		"16": "img/icon16.png",
+		"48": "img/icon48.png",
+		"128": "img/icon128.png"
+	},
+	"web_accessible_resources": ["js/*.js", "css/*.css", "img/*.png"],
+	"browser_action": {
+        "default_title": "SteamSELL",
+        "default_icon": "img/icon128.png",
+        "default_popup": "popup.html"
+	 },
+    "permissions": [
+        "*://*/*",
+        "storage",
+        "*://steamcommunity.com/*",
+        "*://steamp.ru/*",
+		"*://localhost/*"
+    ]
+}
