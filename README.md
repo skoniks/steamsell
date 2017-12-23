@@ -4,7 +4,7 @@ Browser extension (Chrome, Yandex, Opera) that gives an opportunity to sell item
 
 ## Base Installation
 1. Enabled browser Developer mode.
-2. Drag .crx file to your browser extensions page.
+2. Drag SteamSELL dir. to your browser extensions page.
 
 > Default version is based on russian items price parser (STEAMP.RU) and is translated only in Russian. If you want to amend it - you are welcome.
 
