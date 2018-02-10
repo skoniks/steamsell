@@ -15,9 +15,10 @@ window.onload = function () {
 };
 function sell_all(){
 	chrome.storage.local.get(null, function (data) {
+		if(!data.steamp_prices) return log('Ошибка, список цен не обновлен!');
 		steamp_prices = data.steamp_prices;
-		discount = data.discount;
-		max_price = data.max_price;
+		if(data.discount) discount = data.discount;
+		if(data.max_price) max_price = data.max_price;
 	});
 	$('#sslog').slideDown();
 	clearLog();
@@ -136,7 +137,7 @@ function sellItems(items) {
 			return;
 		}
 		var price = getItemPrice(item.market_hash_name);
-		if (price > 0 && price < max_price * 100 ) {
+		if (price > 0 && price < max_price * 100) {
 			sellQueue.push({
 				item: item,
 				price: price

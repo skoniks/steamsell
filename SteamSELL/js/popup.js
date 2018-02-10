@@ -4,13 +4,18 @@ $(function() {
 		if(data.max_price) $('#max_price').val(data.max_price);
 		if(data.steamp_prices) $('#prices').text(makeArray(data.steamp_prices).length);
         if(data.status) $('#status').text(data.status);
+		chrome.storage.local.set({
+			'discount': $('#discount').val(),
+			'max_price': $('#max_price').val(),
+		});
     });
 	$.ajax({
         type: "GET",
         dataType: "json",
         url: "https://raw.githubusercontent.com/skoniks/steamsell/master/SteamSELL/manifest.json",
     }).done(function(manifest) {
-		if(chrome.app.getDetails().version != manifest.version){
+		var details = chrome.app.getDetails()
+		if(details && details.version != manifest.version){
 			$('#upd').text('Outdated! NEW: ' + manifest.version);
 			$('#upd').show();
 		}
