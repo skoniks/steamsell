@@ -1,35 +1,35 @@
-console.log('SteamSELL init');
 var steamp_prices = {};
-var percent = 100;
-var sell = false;
+var discount = 10;
+var max_price = 10;
 var appid = 730;
 var processingItems = false;
 window.onload = function () {
-	$('.nonresponsive_hidden.responsive_fixonscroll').after('<textarea style="display: block; width: 860px; padding: 10px 20px; margin: 10px; height: 94px; background-color: rgb(58, 58, 58); border-color: rgb(45, 45, 45); color: rgb(143, 152, 160); resize: vertical;" id="sslog" placeholder="SteamSELL logs" readonly=""></textarea>');
-	setInterval(function () {
-		if (!sell) {
-			chrome.storage.local.get(null, function (data) {
-				steamp_prices = data.steamp_prices;
-				percent = data.percent;
-				sell = data.sell;
-                appid = data.appid;
-			});
-		}
-		if (sell) {
-            clearLog();
-			log('Начинаем продажу вещей');
-			sell = false;
-			chrome.storage.local.set({
-				'sell': false
-			});
-			getInventory(function (err, items) {
-				if (err)
-					return log('Ошибка получения инвентаря, попробуйте снова');
-				sellItems(items);
-			});
-		}
-	}, 1000);
+	if($('.inventory_links').length){
+		console.log('SteamSELL init');
+		$('.inventory_links .inventory_rightnav').prepend('<a id="sell_all" class="btn_darkblue_white_innerfade btn_medium new_trade_offer_btn"><span>Продать предметы</span></a>');
+		$('.nonresponsive_hidden.responsive_fixonscroll').after('<textarea style="display: none; width: 860px; padding: 10px 20px; margin: 10px; height: 94px; background-color: rgb(58, 58, 58); border-color: rgb(45, 45, 45); color: rgb(143, 152, 160); resize: vertical;" id="sslog" placeholder="SteamSELL logs" readonly=""></textarea>');
+		$('#sell_all').click(function(){
+			sell_all();
+		});
+	}
 };
+function sell_all(){
+	chrome.storage.local.get(null, function (data) {
+		steamp_prices = data.steamp_prices;
+		discount = data.discount;
+		max_price = data.max_price;
+	});
+	$('#sslog').slideDown();
+	clearLog();
+	log('Начинаем продажу вещей');
+	chrome.storage.local.set({
+		'status': 'Продажа...'
+	});
+	getInventory(function (err, items) {
+		if (err) return log('Ошибка получения инвентаря, попробуйте снова');
+		sellItems(items);
+	});
+}
 function log(text) {
 	$('#sslog').val($('#sslog').val() + text + '\n');
     $('#sslog').animate({'scrollTop': $('#sslog').prop('scrollHeight')}, 'slow');
@@ -97,57 +97,51 @@ function sellItem(data, callback) {
 	});
 };
 function getItemPrice(name) {
-	if (typeof steamp_prices[name] == 'undefined')
-		return 0;
-	return Math.round(steamp_prices[name].price * percent);
+	if (typeof steamp_prices[name] == 'undefined') return 0;
+	var price = steamp_prices[name].price * 100;
+	return Math.round(price - price * discount / 100 - price * 0.13);
 }
 function sellItems(items) {
-	processingItems = true;
-	var itemQueue = async.queue(function (item, next) {
-			if (!item.marketable) {
-				log('Недоступно для продажи: ' + item.name);
-				next();
-				return;
-			}
-			var price = getItemPrice(item.market_hash_name);
-			if (price > 0) {
-				sellQueue.push({
-					item: item,
-					price: price
-				});
+	var sellQueue = async.queue(function (task, next) {
+		data = {
+			sessionid: readCookie('sessionid'),
+			appid: task.item.appid,
+			contextid: task.item.contextid,
+			assetid: task.item.id,
+			amount: 1,
+			price: task.price
+		};
+		sellItem(data, function(err, data) {
+			if (!err) {
+				log('Выставлено: ' +  task.item.name + ' за ' + task.price/100 + ' (Очередь: ' + sellQueue.length() + ' предметов)');
+			} else {
+				log('Ошибка продажи: ' + task.item.name);
 			}
 			next();
-		}, 2);
-	itemQueue.drain = function () {
-		if (sellQueue.length() === 0) {
-			log('Done');
+		});
+	}, 1);
+	sellQueue.drain = function () {
+		if(processingItems){
+			log('Выставление предметов на продажу завершено.');
+			chrome.storage.local.set({
+				'status': 'Продано'
+			});
+			processingItems = false;
 		}
-		processingItems = false;
-	};
-	items.forEach(function (item) {
-		itemQueue.push(item);
-	});
-}
-var sellQueue = async.queue(function (task, next) {
-    data = {
-        sessionid: readCookie('sessionid'),
-        appid: task.item.appid,
-        contextid: task.item.contextid,
-        assetid: task.item.id,
-        amount: 1,
-        price: task.price
-    };
-    sellItem(data, function(err, data) {
-        if (!err) {
-            log('Выставлено: ' +  task.item.name + ' за ' + task.price/100 + ' (Очередь: ' + sellQueue.length() + ' предметов)');
-        } else {
-            log('Ошибка продажи: ' + task.item.name);
-        }
-        next();
-    });
-}, 1);
-sellQueue.drain = function () {
-	if (!processingItems) {
-		log('Выставление предметов на продажу завершено.');
 	}
+	items.forEach(function (item) {
+		if (!item.marketable) {
+			log('Недоступно для продажи: ' + item.name);
+			next();
+			return;
+		}
+		var price = getItemPrice(item.market_hash_name);
+		if (price > 0 && price < max_price * 100 ) {
+			sellQueue.push({
+				item: item,
+				price: price
+			});
+		}
+	});
+	processingItems = true;
 }
