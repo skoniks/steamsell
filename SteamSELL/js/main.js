@@ -1,4 +1,3 @@
-var ReportTradeScamExp = /<a href="https:\/\/steamcommunity.com\/.+?\/.+?\/">/;
 var steamp_prices = {};
 var discount = 10;
 var max_price = 10;
@@ -16,13 +15,16 @@ window.onload = function () {
 		$('#accept_all').click(function(){
 			accept_all();
 		});
+		$('.inventory_links .inventory_rightnav #inventory_more_dropdown .popup_menu').append('<a class="popup_menu_item" href="https://steamp.ru/" target="_blank">Наш парсер цен</a><a class="popup_menu_item" href="https://vk.com/skoniks" target="_blank">Написать разработчику</a><a class="popup_menu_item" href="https://steamcommunity.com/tradeoffer/new/?partner=112797909&token=AMFNbblk" target="_blank">Пожертвовать</a>');		
 	}
 	if(window.location.pathname.indexOf('tradeoffer') != '-1'){
 		acceptCurrentOffer(window.location.pathname.split('/')[2]);
 	}
 };
 function accept_all(){
-	if(processingOffers) return log('Продажа предметов уже в процессе, перезагрузите страницу.');
+	if(processingOffers) return log('Принятие уже в процессе, перезагрузите страницу.');
+	log('Начинаем принятие обменов');
+	var save_href = window.location.href;
 	var acceptQueue = async.queue(function (task, next) {
 		data = {
 			sessionid: readCookie('sessionid'),
@@ -31,27 +33,16 @@ function accept_all(){
 			partner: task.partner,
 			captcha: ''
 		};
-		chrome.storage.local.set({
-			'offer': data,
+		log('Принимаем обмен #' + task.id + ' | от: ' + task.partner + ' | предметов: ' + task.items);
+		window.history.pushState({link: window.location.origin + '/tradeoffer/' + task.id}, null, window.location.origin + '/tradeoffer/' + task.id);
+		acceptOffer(data, function(err, data) {
+			if (!err) {
+				log('Обмен #' + task.id + ' принят (Очередь: ' + acceptQueue.length() + ' обменов)');
+			} else {
+				log('Ошибка приянтия: ' + task.id);
+			}
+			next();
 		});
-		log('Принимаем обмен #' + task.id);
-		window.open('https://steamcommunity.com/tradeoffer/' + task.id + '/', 'HiddenTradeOffer_' + task.id, 'height=10,width=10,resize=yes,scrollbars=yes');
-		var interval = setInterval(function(){
-			chrome.storage.local.get(null, function (data) {
-				if(data.offer_result){
-					clearInterval(interval);
-					chrome.storage.local.set({
-						'offer_result': false
-					});
-					if (!data.offer_result.err) {
-						log('Обмен #' + task.id + ' принят (Очередь: ' + acceptQueue.length() + ' обменов)');
-					} else {
-						log('Ошибка приянтия: ' + task.id);
-					}
-					next();
-				}
-			});
-		}, 1000);
 	}, 1);
 	acceptQueue.drain = function () {
 		if(processingOffers){
@@ -60,11 +51,12 @@ function accept_all(){
 				'status': 'Приняты'
 			});
 			processingOffers = false;
+			window.history.pushState({link: save_href}, null, save_href);
 		}
 	}
 	$.ajax({
         method: "GET",
-        url: "http://steamcommunity.com/my/tradeoffers/",
+        url: window.location.origin + "/my/tradeoffers/",
         cache: false
     }).done(function (response, textStatus, jqXHR) {
         if (!$(response).find('.mainLoginPanel').length) {
@@ -73,8 +65,6 @@ function accept_all(){
             var resHTML = res.substr(bodyIdx[0] + 40, bodyIdx[1] - bodyIdx[0] - 40);
             var $body = $(resHTML);
 			$('#sslog').slideDown();
-			clearLog();
-			log('Принимаем обмены:');
             $body.find('.tradeoffer').each(function (i, o) {
                 var $tradeoffer = $(this);
                 if (!$tradeoffer.find('.link_overlay').length) return;
@@ -86,6 +76,7 @@ function accept_all(){
 					acceptQueue.push({
 						id: offerID,
 						partner: partner,
+						items: imgTheirs.length,
 					});
 				}
             });
@@ -103,31 +94,10 @@ function accept_all(){
 		}
 	});
 }
-function acceptCurrentOffer(id){
-	var offer = false;
-	chrome.storage.local.get(null, function (data) {
-        if(data.offer) offer = data.offer;
-		chrome.storage.local.set({
-			'offer': false,
-		});
-		console.log(id, offer);
-		if(offer && offer.tradeofferid == id){
-			acceptOffer(offer, function(err, data) {
-				chrome.storage.local.set({
-					'offer_result': {
-						'err': err,
-						'data': data,
-					}
-				});
-				setTimeout(function(){window.close();},1000);
-			});
-		}
-    });
-}
 function acceptOffer(data, callback) {
 	window.jQuery.ajax({
 		type: 'POST',
-		url: 'https://steamcommunity.com/tradeoffer/' + data.tradeofferid + '/accept',
+		url: window.location.origin + '/tradeoffer/' + data.tradeofferid + '/accept',
 		data: data,
         success: function(data) {
             callback(null, data);
@@ -150,7 +120,6 @@ function sell_all(){
 		if(data.max_price) max_price = data.max_price;
 	});
 	$('#sslog').slideDown();
-	clearLog();
 	log('Начинаем продажу вещей');
 	chrome.storage.local.set({
 		'status': 'Продажа...'
@@ -163,9 +132,6 @@ function sell_all(){
 function log(text) {
 	$('#sslog').val($('#sslog').val() + text + '\n');
     $('#sslog').animate({'scrollTop': $('#sslog').prop('scrollHeight')}, 'slow');
-}
-function clearLog() {
-	$('#sslog').val();
 }
 function readCookie(name) {
 	var nameEQ = name + "=";
