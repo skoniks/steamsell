@@ -16,6 +16,11 @@ window.onload = function () {
 			accept_all();
 		});
 		$('.inventory_links .inventory_rightnav #inventory_more_dropdown .popup_menu').append('<a class="popup_menu_item" href="https://steamp.ru/" target="_blank">Наш парсер цен</a><a class="popup_menu_item" href="https://vk.com/skoniks" target="_blank">Написать разработчику</a><a class="popup_menu_item" href="https://steamcommunity.com/tradeoffer/new/?partner=112797909&token=AMFNbblk" target="_blank">Пожертвовать</a>');		
+		setInterval(function(){
+			chrome.storage.local.get(null, function (data) {
+				if(data.offers) accept_all();
+			});
+		}, 30000);
 	}
 	if(window.location.pathname.indexOf('tradeoffer') != '-1'){
 		acceptCurrentOffer(window.location.pathname.split('/')[2]);

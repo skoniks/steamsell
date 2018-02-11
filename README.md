@@ -8,7 +8,7 @@ Browser extension (Chrome, Yandex, Opera) that gives an opportunity to sell item
 
 > Default version is based on russian items price parser (STEAMP.RU) and is translated only in Russian. If you want to amend it - you are welcome.
 
-## Destiption in russian:
+## Description in russian:
 Данное расширение позволять быстро продавать предметы Steam из инвентаря по актуальным ценам. Цены предоставляются системой для парсинга STEAMP.RU.
 Для продажи предметов необходимо:
 - Открыть страницу своего инвентаря STEAM

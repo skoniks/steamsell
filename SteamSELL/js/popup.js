@@ -4,6 +4,7 @@ $(function() {
 		if(data.max_price) $('#max_price').val(data.max_price);
 		if(data.steamp_prices) $('#prices').text(makeArray(data.steamp_prices).length);
         if(data.status) $('#status').text(data.status);
+		if(data.offers) $('#offers').prop('checked', true);
 		chrome.storage.local.set({
 			'discount': $('#discount').val(),
 			'max_price': $('#max_price').val(),
@@ -20,6 +21,17 @@ $(function() {
 			$('#upd').show();
 		}
     });
+	$("#offers").change(function () {
+		if($('#offers').prop('checked')){
+			chrome.storage.local.set({
+				'offers': true
+			});
+		} else {
+			chrome.storage.local.set({
+				'offers': false
+			});
+		}
+	});
     $('#discount_save').click(function(){
 		chrome.storage.local.set({
 			'discount': $('#discount').val()
