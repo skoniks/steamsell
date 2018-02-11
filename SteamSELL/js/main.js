@@ -16,14 +16,27 @@ window.onload = function () {
 			accept_all();
 		});
 		$('.inventory_links .inventory_rightnav #inventory_more_dropdown .popup_menu').append('<a class="popup_menu_item" href="https://steamp.ru/" target="_blank">Наш парсер цен</a><a class="popup_menu_item" href="https://vk.com/skoniks" target="_blank">Написать разработчику</a><a class="popup_menu_item" href="https://steamcommunity.com/tradeoffer/new/?partner=112797909&token=AMFNbblk" target="_blank">Пожертвовать</a>');		
+		var checkoffers = false,
+			checkoffers_time = 0;
 		setInterval(function(){
 			chrome.storage.local.get(null, function (data) {
-				if(data.offers) accept_all();
+				if(data.offers && !checkoffers){
+					checkoffers_time = data.offers;
+					checkoffers = setInterval(function(){
+						accept_all();
+					}, data.offers * 1000);
+				} else if(!data.offers && checkoffers) {
+					clearInterval(checkoffers);
+					checkoffers = false;
+				} else if(data.offers && checkoffers_time != data.offers){
+					clearInterval(checkoffers);
+					checkoffers_time = data.offers;
+					checkoffers = setInterval(function(){
+						accept_all();
+					}, data.offers * 1000);
+				}
 			});
-		}, 30000);
-	}
-	if(window.location.pathname.indexOf('tradeoffer') != '-1'){
-		acceptCurrentOffer(window.location.pathname.split('/')[2]);
+		}, 2000);
 	}
 };
 function accept_all(){
@@ -102,7 +115,7 @@ function accept_all(){
 function acceptOffer(data, callback) {
 	window.jQuery.ajax({
 		type: 'POST',
-		url: window.location.origin + '/tradeoffer/' + data.tradeofferid + '/accept',
+		url: 'https://steamcommunity.com/tradeoffer/' + data.tradeofferid + '/accept',
 		data: data,
         success: function(data) {
             callback(null, data);

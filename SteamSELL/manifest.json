@@ -3,7 +3,7 @@
   	"name": "SteamSELL - Fast way to sell items on Steam",
     "short_name": "SteamSELL",
   	"description": "Расширение для быстрой продажи ваших предметов STEAM",
-  	"version": "1.2.4",
+  	"version": "1.2.5",
     "author" : "SKONIKS",
 	"content_scripts": [{
         "matches": ["*://steamcommunity.com/*/*/inventory/", "*://steamcommunity.com/*/*/inventory", "*://steamcommunity.com/tradeoffer/*", "*://steamcommunity.com/tradeoffer/*/"],

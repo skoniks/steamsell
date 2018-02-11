@@ -4,7 +4,11 @@ $(function() {
 		if(data.max_price) $('#max_price').val(data.max_price);
 		if(data.steamp_prices) $('#prices').text(makeArray(data.steamp_prices).length);
         if(data.status) $('#status').text(data.status);
-		if(data.offers) $('#offers').prop('checked', true);
+		if(data.offers){
+			$('#offers').prop('checked', true);
+			$('#offers_time').prop('disabled', false);
+			$('#offers_time').val(data.offers);
+		}
 		chrome.storage.local.set({
 			'discount': $('#discount').val(),
 			'max_price': $('#max_price').val(),
@@ -23,16 +27,29 @@ $(function() {
     });
 	$("#offers").change(function () {
 		if($('#offers').prop('checked')){
+			$('#offers_time').prop('disabled', false);
 			chrome.storage.local.set({
-				'offers': true
+				'offers': $('#offers_time').val()
+			});
+		} else {
+			$('#offers_time').prop('disabled', true);
+			chrome.storage.local.set({
+				'offers': false
+			});
+		}
+	});
+    $('#offers_save').click(function(){
+		if($('#offers').prop('checked')){
+			chrome.storage.local.set({
+				'offers': $('#offers_time').val()
 			});
 		} else {
 			chrome.storage.local.set({
 				'offers': false
 			});
 		}
-	});
-    $('#discount_save').click(function(){
+    });
+	$('#discount_save').click(function(){
 		chrome.storage.local.set({
 			'discount': $('#discount').val()
 		});
