@@ -1,43 +1,73 @@
 <html>
-    <head>
-		<meta charset="utf-8" >
-		<title>SteamSELL Addon</title>
-		<script src="js/jquery-1.10.2.min.js"></script>
-        <script src="js/popup.js"></script>
-		<style>
-			p{
-				margin:0;
-			}
-		</style>
-	</head>
-	<body style="width: 150px;height: auto;text-align: center;">
-		<span style="font-size: 14px;">Настройки SteamSELL</span><br>
-		<hr>
-		<!--p style="font-size: 13px;"><span>Статус: </span><span id="status">...</span></p-->
-		<p style="font-size: 13px;"><span>Цен загружено: </span><span id="prices">0</span></p>
-        <p style="font-size: 13px;">
-			<span style="margin-right: 5px;">Скидка:</span>
-			<input style="width:35px;" id="discount" placeholder="%" value="10" type="number">
-			<button id="discount_save" style="width: 30px;">▼</button><br>
-		</p>
-		<p style="font-size: 13px;">
-			<span style="margin-right: 5px;">Макс. цена:</span>
-			<input style="width:35px;" id="max_price" placeholder="%" value="10" type="number">
-			<button id="max_price_save" style="width: 30px;">▼</button><br>
-		</p>
-		<span>+ комиссия Steam 13,03%</span><br>
-		<button id="update" style="width: 145px;">Обновить цены</button><br>
-		<hr>
-		<p style="font-size: 13px;">
-			<span style="margin-right: 5px;">Принимать обмены:</span>
-			<label style="display:  block;vertical-align: middle;">
-				<input id="offers" type="checkbox" style="display: inline-block;height: 13px;">
-				<input style="width:35px;" id="offers_time" placeholder="Время" value="10" type="number" disabled>
-				<button id="offers_save" style="width: 30px;">▼</button><br>
-			</label>
-		</p>
-		<hr>
-        <span>POWERED BY STEAMP.RU</span><br>
-		<a href="https://github.com/skoniks/steamsell" target="_blank" style="display:none;" id="upd"></a>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>SteamSELL Addon</title>
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="js/popup.js"></script>
+    <style>
+      p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body style="width: 150px; height: auto; text-align: center">
+    <span style="font-size: 14px">Настройки SteamSELL</span><br />
+    <hr />
+    <!--p style="font-size: 13px;"><span>Статус: </span><span id="status">...</span></p-->
+    <p style="font-size: 13px">
+      <span>Цен загружено: </span><span id="prices">0</span>
+    </p>
+    <p style="font-size: 13px">
+      <span style="margin-right: 5px">Скидка:</span>
+      <input
+        style="width: 35px"
+        id="discount"
+        placeholder="%"
+        value="10"
+        type="number"
+      />
+      <button id="discount_save" style="width: 30px">▼</button><br />
+    </p>
+    <p style="font-size: 13px">
+      <span style="margin-right: 5px">Макс. цена:</span>
+      <input
+        style="width: 35px"
+        id="max_price"
+        placeholder="%"
+        value="10"
+        type="number"
+      />
+      <button id="max_price_save" style="width: 30px">▼</button><br />
+    </p>
+    <span>+ комиссия Steam 13,03%</span><br />
+    <button id="update" style="width: 145px">Обновить цены</button><br />
+    <hr />
+    <p style="font-size: 13px">
+      <span style="margin-right: 5px">Принимать обмены:</span>
+      <label style="display: block; vertical-align: middle">
+        <input
+          id="offers"
+          type="checkbox"
+          style="display: inline-block; height: 13px"
+        />
+        <input
+          style="width: 35px"
+          id="offers_time"
+          placeholder="Время"
+          value="10"
+          type="number"
+          disabled
+        />
+        <button id="offers_save" style="width: 30px">▼</button><br />
+      </label>
+    </p>
+    <hr />
+    <span>POWERED BY STEAMP.RU</span><br />
+    <a
+      href="https://github.com/skoniks/steamsell"
+      target="_blank"
+      style="display: none"
+      id="upd"
+    ></a>
+  </body>
 </html>
